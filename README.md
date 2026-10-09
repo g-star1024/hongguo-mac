@@ -1,6 +1,6 @@
-# 红果短剧 for macOS
+# 剧立方 DramaCube for macOS
 
-> **非官方、独立实现**的开源 macOS 短剧客户端，仅供学习交流。
+> **非官方、独立实现**的开源 macOS 短剧客户端，仅供学习交流。（v1.0.1 起由「红果短剧 for Mac」更名为「剧立方 DramaCube」，与任何现有品牌无关联）
 
 原生 SwiftUI 实现，无 WebView。通过本地 Hummingbird 网关解析公开网页数据并统一代理播放流量（剥离 Referer 以适配 CDN），AVPlayer 播放，SwiftData 持久化收藏与观看进度。
 
@@ -27,7 +27,7 @@
 2. 或在终端执行（按实际安装路径调整）：
 
 ```bash
-xattr -cr "/Applications/红果短剧.app"
+xattr -cr "/Applications/剧立方.app"
 ```
 
 各版本文件 SHA-256 见对应 Release 说明，下载后建议核对。
