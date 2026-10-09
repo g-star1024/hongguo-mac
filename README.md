@@ -1,6 +1,6 @@
 # 红果短剧 for macOS
 
-> **非官方、独立实现**的开源 macOS 短剧客户端。与「渠道有数」维护的 Windows 版（[waligoraamodio288-rgb/hongguo-desktop-releases](https://github.com/waligoraamodio288-rgb/hongguo-desktop-releases)）**不是同一套代码**，无隶属关系；本仓库为独立原生实现，仅供学习交流。
+> **非官方、独立实现**的开源 macOS 短剧客户端，仅供学习交流。
 
 原生 SwiftUI 实现，无 WebView。通过本地 Hummingbird 网关解析公开网页数据并统一代理播放流量（剥离 Referer 以适配 CDN），AVPlayer 播放，SwiftData 持久化收藏与观看进度。
 
@@ -63,7 +63,7 @@ HongguoMacApp      App 可执行入口（打包脚本装入 .app）
 ## 声明
 
 - 本项目不存储、不分发任何影视内容，所有数据来自公开网页的实时解析，内容的版权归各自权利方所有。
-- 本项目仅供学习 SwiftUI / Hummingbird / SwiftData 等技术交流使用，请勿用于商业用途。
+- 本项目仅供学习交流使用，请勿用于商业用途。
 - 环境要求：本地网关仅监听 `127.0.0.1`，不对外提供服务。
 - 使用本软件产生的一切后果由使用者自行承担。
 
