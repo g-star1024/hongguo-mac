@@ -15,7 +15,7 @@
 ## 系统要求
 
 - macOS 14.0 或更高版本
-- 提供 **arm64（Apple Silicon）** 与 **x86_64（Intel）** 两套原生构建，请按机型选择下载
+- v2.3.2 起提供 **universal 通用包**（Apple Silicon + Intel 合一，推荐）与 x86_64 单架构包
 
 ## 下载安装
 
@@ -41,11 +41,11 @@ swift build                      # 开发构建
 ./Scripts/build-app-bundle.sh    # 组装 .app + zip + dmg（ad-hoc 签名）
 ```
 
-Apple Silicon 上可出 arm64 或 universal 包：
+Apple Silicon / Intel 均可出各架构或 universal 包（分编 + lipo 合成）：
 
 ```bash
 ARCH=arm64 ./Scripts/build-app-bundle.sh
-# ARCH=universal 需在 Apple Silicon 上执行
+ARCH=universal ./Scripts/build-app-bundle.sh   # 双架构合一
 ```
 
 依赖：Swift 6 工具链（Xcode 16+）、macOS 14 SDK。纯 SPM 项目，无 .xcodeproj。
