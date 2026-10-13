@@ -1,0 +1,89 @@
+# Swift macOS 打包发布（本公开仓 CI 构建，Actions 免费）
+#
+# 手动触发（workflow_dispatch）：
+#   gh workflow run build.yml -R g-star1024/hongguo-mac -f ref=main -f version=2.3.6
+#   gh workflow run build.yml -R g-star1024/hongguo-mac -f ref=mac-v2.3.6 -f version=2.3.6 -f arch=universal
+#
+# 机制：本仓 workflow 用 SOURCE_PAT checkout 私有源码仓 g-star1024/hongguo-desktop
+# 的 SwiftPM 工程 → macos-14（Apple Silicon）universal 打包 → 发布到本仓 Release。
+# 私有源码仓零 CI 分钟消耗（不再扣费）。
+
+name: build
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "私有源码仓 hongguo-desktop 的 ref（main / mac-vX.Y.Z tag / commit）"
+        required: true
+        default: "main"
+      version:
+        description: "版本号（如 2.3.6，发布 tag 为 v<version>）"
+        required: true
+      arch:
+        description: "构建架构（universal 双架构合一，推荐；或 arm64 / x86_64）"
+        required: false
+        default: "universal"
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout 私有源码仓
+        uses: actions/checkout@v4
+        with:
+          repository: g-star1024/hongguo-desktop
+          ref: ${{ github.event.inputs.ref }}
+          token: ${{ secrets.SOURCE_PAT }}
+
+      - name: Select latest stable Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+          uname -m
+
+      - name: Build app bundle
+        run: |
+          chmod +x Scripts/build-app-bundle.sh
+          ARCH="${{ github.event.inputs.arch }}" \
+          VERSION="${{ github.event.inputs.version }}" \
+          ./Scripts/build-app-bundle.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.event.inputs.arch }}
+          path: |
+            .build/dist/*.zip
+            .build/dist/*.dmg
+            .build/dist/latest.json
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Publish to 本仓 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.event.inputs.version }}
+          ARCH: ${{ github.event.inputs.arch }}
+        run: |
+          set -euo pipefail
+          REPO="${{ github.repository }}"
+          TAG="v${VERSION}"
+          DMG=".build/dist/dramacube-macOS-${ARCH}-${VERSION}.dmg"
+          ZIP=".build/dist/dramacube-macOS-${ARCH}-${VERSION}.zip"
+          LATEST=".build/dist/latest.json"
+          if ! gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1; then
+            gh release create "$TAG" --repo "$REPO" \
+              --title "剧立方 DramaCube macOS ${TAG}" \
+              --notes "macOS ${ARCH} 构建（本仓 GitHub Actions）。源码：hongguo-desktop @ ${{ github.event.inputs.ref }}"
+          fi
+          gh release upload "$TAG" "$DMG" "$ZIP" "$LATEST" --repo "$REPO" --clobber
+          echo "已发布： https://github.com/${REPO}/releases/tag/${TAG}"
